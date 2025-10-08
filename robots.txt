@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://zyn06-cyme.github.io/phimzyn/sitemap.xml
