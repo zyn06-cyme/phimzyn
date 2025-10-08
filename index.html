@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Xem phim miễn phí, nhanh, chất lượng cao tại PHIMCHOEM 🎬">
+  <meta property="og:title" content="PHIMCHOEM 🎬 - Xem phim miễn phí">
+  <meta property="og:image" content="https://i.imgur.com/8Q1ZtUO.png">
+
+  <title>PHIM CHO EM 🎬</title>
+  <style>
+    * { box-sizing: border-box; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
+      color: #fff;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 30px;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(229,9,20,0.3);
+    }
+
+    /* 🟥 Logo có hiệu ứng click và hover */
+    .logo {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #e50914;
+      text-shadow: 0 0 15px #e50914;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+    .logo:hover {
+      text-shadow: 0 0 25px #ff1e25, 0 0 40px #e50914;
+      transform: scale(1.05);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(20,20,20,0.8);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid #333;
+    }
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 1rem;
+      width: 160px;
+    }
+    .search-box button {
+      background: #e50914;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    .search-box button:hover {
+      background: #b20710;
+    }
+
+    /* MAIN (dùng flex để footer đẩy xuống dưới nếu nội dung ít) */
+    main {
+      flex: 1 0 auto;
+      padding: 24px;
+    }
+
+    .movie-row {
+      margin-bottom: 50px;
+    }
+    .row-title {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+      margin-left: 4px;
+      border-left: 5px solid #e50914;
+      padding-left: 10px;
+      text-shadow: 0 0 10px #e50914;
+    }
+
+    /* SCROLL AREA */
+    .movies-scroll {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding-bottom: 16px;
+      cursor: grab;
+    }
+    .movies-scroll::-webkit-scrollbar {
+      height: 6px;
+      background: #111;
+    }
+    .movies-scroll::-webkit-scrollbar-thumb {
+      background: #e50914;
+      border-radius: 10px;
+    }
+
+    /* MOVIE CARD */
+    .movie-card {
+      flex: 0 0 auto;
+      width: 180px;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      transition: all 0.35s ease;
+      background: #111;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+    }
+    .movie-card:hover {
+      transform: scale(1.08) translateY(-6px);
+      z-index: 10;
+      box-shadow: 0 15px 40px rgba(229,9,20,0.5);
+    }
+    .movie-thumb {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s;
+    }
+    .movie-card:hover .movie-thumb {
+      transform: scale(1.1);
+    }
+    .movie-title {
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      padding: 8px;
+      color: #ddd;
+      height: 46px;
+      overflow: hidden;
+      background: linear-gradient(to top, #000, rgba(0,0,0,0.6));
+    }
+
+    /* DETAIL SECTION */
+    .movie-detail {
+      background: rgba(17,17,17,0.95);
+      border-radius: 18px;
+      padding: 24px;
+      animation: fadeIn 0.4s ease;
+      box-shadow: 0 8px 30px rgba(229,9,20,0.3);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .movie-detail img {
+      width: 100%;
+      border-radius: 14px;
+      margin-bottom: 12px;
+    }
+    .movie-detail h2 {
+      color: #e50914;
+      margin-top: 0;
+      text-shadow: 0 0 10px #e50914;
+    }
+    .episode-btn {
+      background: #e50914;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 13px;
+      margin: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .episode-btn:hover {
+      background: #b20710;
+      transform: scale(1.05);
+    }
+    iframe {
+      width: 100%;
+      height: 60vw;
+      max-height: 480px;
+      border: none;
+      border-radius: 12px;
+      margin-top: 14px;
+    }
+
+    /* FOOTER (nguồn) */
+    .site-footer {
+      text-align: center;
+      padding: 14px 18px;
+      color: #bdbdbd;
+      font-size: 0.95rem;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      background: linear-gradient(to top, rgba(0,0,0,0.35), transparent);
+      flex-shrink: 0;
+    }
+    .site-footer a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .site-footer a:hover { text-decoration: underline; color: #e50914; }
+
+    @media (max-width: 768px) {
+      .movie-card { width: 140px; }
+      .movie-title { font-size: 0.85rem; }
+      .search-box input { width: 120px; }
+      iframe { height: 70vw; }
+      header { padding: 14px 20px; }
+      .row-title { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="goHome()" title="Về trang chủ">PHIMCHOEM🎬</div>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Tìm phim...">
+      <button onclick="searchMovies()">Tìm</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="home"></div>
+    <div id="detail" style="display:none;"></div>
+  </main>
+
+  <!-- Footer: nguồn / credit -->
+  <footer class="site-footer">
+    <div id="credit">© <span id="year"></span> PHIMCHOEM🎬 — Được thực hiện bởi <strong>Lập 18Cm</strong></div>
+  </footer>
+
+  <script>
+    // set dynamic year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const categories = [
+      { title: "🔥 Phim Mới Cập Nhật", url: "https://phimapi.com/v1/api/danh-sach/phim-moi?page=1" },
+      { title: "🎬 Phim Lẻ", url: "https://phimapi.com/v1/api/danh-sach/phim-le?page=1" },
+      { title: "📺 Phim Bộ", url: "https://phimapi.com/v1/api/danh-sach/phim-bo?page=1" },
+      { title: "🐉 Hoạt Hình", url: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?page=1" }
+    ];
+
+    // Fix lỗi ảnh không load ở trang chủ
+    function getImage(url) {
+      if (!url) return "https://i.imgur.com/8Q1ZtUO.png";
+      if (url.startsWith("http")) return url;
+      return "https://img.phimapi.com/" + url.replace(/^\/+/, "");
+    }
+
+    // Hàm quay lại trang chủ khi ấn logo
+    function goHome() {
+      document.getElementById("detail").style.display = "none";
+      document.getElementById("home").style.display = "block";
+      loadHome();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderMovieRow(title, movies) {
+      if (!movies || movies.length === 0) return "";
+      return `
+        <div class="movie-row">
+          <div class="row-title">${title}</div>
+          <div class="movies-scroll">
+            ${movies.map(movie => `
+              <div class="movie-card" onclick="showDetail('${movie.slug}')">
+                <img src="${getImage(movie.poster_url)}" class="movie-thumb" alt="${escapeHtml(movie.name)}" onerror="this.src='https://i.imgur.com/8Q1ZtUO.png'">
+                <div class="movie-title">${escapeHtml(movie.name)}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function loadHome() {
+      document.getElementById("home").innerHTML = `<div style="text-align:center;color:#aaa;">Đang tải phim...</div>`;
+      document.getElementById("detail").style.display = "none";
+      document.getElementById("home").style.display = "block";
+
+      Promise.all(categories.map(cat =>
+        fetch(cat.url).then(res => res.json())
+          .then(data => ({
+            title: cat.title,
+            items: data.items || data.data?.items || []
+          }))
+          .catch(()=>({ title: cat.title, items: [] }))
+      )).then(results => {
+        document.getElementById("home").innerHTML = results.map(r => renderMovieRow(r.title, r.items)).join("");
+      });
+    }
+
+    function searchMovies() {
+      const keyword = document.getElementById("searchInput").value.trim();
+      if (!keyword) return loadHome();
+      fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&page=1`)
+        .then(res => res.json())
+        .then(data => {
+          const items = data.items || data.data?.items || [];
+          document.getElementById("home").innerHTML = renderMovieRow(`Kết quả cho "${escapeHtml(keyword)}"`, items);
+        }).catch(()=>{ document.getElementById("home").innerHTML = `<div style="text-align:center;color:#aaa;">Lỗi khi tìm kiếm.</div>`; });
+    }
+
+    function showDetail(slug) {
+      fetch(`https://phimapi.com/phim/${slug}`)
+        .then(res => res.json())
+        .then(data => {
+          const movie = data.movie || {};
+          const episodes = data.episodes?.[0]?.server_data || [];
+          document.getElementById("home").style.display = "none";
+          document.getElementById("detail").style.display = "block";
+          document.getElementById("detail").innerHTML = `
+            <div class="movie-detail">
+              <img src="${getImage(movie.poster_url)}" alt="${escapeHtml(movie.name)}" onerror="this.src='https://i.imgur.com/8Q1ZtUO.png'">
+              <h2>${escapeHtml(movie.name)}</h2>
+              <p><b>Tên gốc:</b> ${escapeHtml(movie.origin_name || "")}</p>
+              <p><b>Năm:</b> ${escapeHtml(movie.year || "")}</p>
+              <p><b>Thể loại:</b> ${escapeHtml((movie.category||[]).map(c=>c.name).join(', '))}</p>
+              <p><b>Quốc gia:</b> ${escapeHtml((movie.country||[]).map(c=>c.name).join(', '))}</p>
+              <p>${escapeHtml(movie.content || "")}</p>
+              <div><b>Danh sách tập:</b></div>
+              <div>
+                ${episodes.length
+                  ? episodes.map(ep => `<button class="episode-btn" onclick="play('${ep.link_embed}')">${escapeHtml(ep.name)}</button>`).join("")
+                  : "<span>Chưa có tập.</span>"}
+              </div>
+              <button class="episode-btn" style="background:#444;" onclick="goHome()">⬅ Quay lại</button>
+              <div id="player"></div>
+            </div>`;
+        }).catch(()=>{ alert('Không tải được chi tiết phim.'); });
+    }
+
+    function play(link) {
+      document.getElementById("player").innerHTML = `<iframe src="${link}" allowfullscreen></iframe>`;
+    }
+
+    // nhỏ but safe: escape html when interpolating text
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // start
+    loadHome();
+  </script>
+</body>
+</html>
