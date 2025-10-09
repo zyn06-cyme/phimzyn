@@ -35,7 +35,15 @@
       box-shadow: 0 4px 20px rgba(229,9,20,0.3);
     }
 
-    /* 🟥 Logo có hiệu ứng click và hover */
+    .menu-toggle {
+      display: none;
+      font-size: 1.6rem;
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+    }
+
     .logo {
       font-size: 2rem;
       font-weight: 900;
@@ -81,7 +89,8 @@
       background: #b20710;
     }
 
-    /* MAIN (dùng flex để footer đẩy xuống dưới nếu nội dung ít) */
+    .search-box.active { display: flex !important; }
+
     main {
       flex: 1 0 auto;
       padding: 24px;
@@ -100,7 +109,6 @@
       text-shadow: 0 0 10px #e50914;
     }
 
-    /* SCROLL AREA */
     .movies-scroll {
       display: flex;
       gap: 16px;
@@ -118,7 +126,6 @@
       border-radius: 10px;
     }
 
-    /* MOVIE CARD */
     .movie-card {
       flex: 0 0 auto;
       width: 180px;
@@ -155,7 +162,6 @@
       background: linear-gradient(to top, #000, rgba(0,0,0,0.6));
     }
 
-    /* DETAIL SECTION */
     .movie-detail {
       background: rgba(17,17,17,0.95);
       border-radius: 18px;
@@ -195,13 +201,44 @@
     iframe {
       width: 100%;
       height: 60vw;
-      max-height: 480px;
+      max-height: 520px;
       border: none;
       border-radius: 12px;
       margin-top: 14px;
     }
 
-    /* FOOTER (nguồn) */
+    .comment-section {
+      margin-top: 30px;
+      padding: 16px;
+      background: rgba(20,20,20,0.7);
+      border-radius: 12px;
+    }
+    .comment-section input, .comment-section textarea {
+      width: 100%;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 1rem;
+      background: #111;
+      color: #fff;
+    }
+    .comment-section button {
+      background: #e50914;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: bold;
+    }
+    .comment {
+      background: #0a0a0a;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
     .site-footer {
       text-align: center;
       padding: 14px 18px;
@@ -211,27 +248,25 @@
       background: linear-gradient(to top, rgba(0,0,0,0.35), transparent);
       flex-shrink: 0;
     }
-    .site-footer a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: 600;
-    }
+    .site-footer a { color: #fff; text-decoration: none; font-weight: 600; }
     .site-footer a:hover { text-decoration: underline; color: #e50914; }
 
     @media (max-width: 768px) {
+      header { padding: 14px 20px; }
+      .menu-toggle { display: block; }
+      .search-box { display: none; position: absolute; top: 60px; right: 20px; }
       .movie-card { width: 140px; }
       .movie-title { font-size: 0.85rem; }
-      .search-box input { width: 120px; }
-      iframe { height: 70vw; }
-      header { padding: 14px 20px; }
+      iframe { height: 75vw; }
       .row-title { font-size: 1.3rem; }
     }
   </style>
 </head>
 <body>
   <header>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     <div class="logo" onclick="goHome()" title="Về trang chủ">PHIMCHOEM🎬</div>
-    <div class="search-box">
+    <div class="search-box" id="searchBox">
       <input type="text" id="searchInput" placeholder="Tìm phim...">
       <button onclick="searchMovies()">Tìm</button>
     </div>
@@ -242,13 +277,11 @@
     <div id="detail" style="display:none;"></div>
   </main>
 
-  <!-- Footer: nguồn / credit -->
   <footer class="site-footer">
     <div id="credit">© <span id="year"></span> PHIMCHOEM🎬 — Được thực hiện bởi <strong>Lập 18Cm</strong></div>
   </footer>
 
   <script>
-    // set dynamic year
     document.getElementById('year').textContent = new Date().getFullYear();
 
     const categories = [
@@ -258,14 +291,17 @@
       { title: "🐉 Hoạt Hình", url: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?page=1" }
     ];
 
-    // Fix lỗi ảnh không load ở trang chủ
+    function toggleMenu() {
+      const box = document.getElementById("searchBox");
+      box.classList.toggle("active");
+    }
+
     function getImage(url) {
       if (!url) return "https://i.imgur.com/8Q1ZtUO.png";
       if (url.startsWith("http")) return url;
       return "https://img.phimapi.com/" + url.replace(/^\/+/, "");
     }
 
-    // Hàm quay lại trang chủ khi ấn logo
     function goHome() {
       document.getElementById("detail").style.display = "none";
       document.getElementById("home").style.display = "block";
@@ -281,7 +317,7 @@
           <div class="movies-scroll">
             ${movies.map(movie => `
               <div class="movie-card" onclick="showDetail('${movie.slug}')">
-                <img src="${getImage(movie.poster_url)}" class="movie-thumb" alt="${escapeHtml(movie.name)}" onerror="this.src='https://i.imgur.com/8Q1ZtUO.png'">
+                <img src="${getImage(movie.poster_url)}" class="movie-thumb" alt="${escapeHtml(movie.name)}">
                 <div class="movie-title">${escapeHtml(movie.name)}</div>
               </div>
             `).join("")}
@@ -297,10 +333,7 @@
 
       Promise.all(categories.map(cat =>
         fetch(cat.url).then(res => res.json())
-          .then(data => ({
-            title: cat.title,
-            items: data.items || data.data?.items || []
-          }))
+          .then(data => ({ title: cat.title, items: data.items || data.data?.items || [] }))
           .catch(()=>({ title: cat.title, items: [] }))
       )).then(results => {
         document.getElementById("home").innerHTML = results.map(r => renderMovieRow(r.title, r.items)).join("");
@@ -315,7 +348,8 @@
         .then(data => {
           const items = data.items || data.data?.items || [];
           document.getElementById("home").innerHTML = renderMovieRow(`Kết quả cho "${escapeHtml(keyword)}"`, items);
-        }).catch(()=>{ document.getElementById("home").innerHTML = `<div style="text-align:center;color:#aaa;">Lỗi khi tìm kiếm.</div>`; });
+        })
+        .catch(()=>{ document.getElementById("home").innerHTML = `<div style="text-align:center;color:#aaa;">Lỗi khi tìm kiếm.</div>`; });
     }
 
     function showDetail(slug) {
@@ -326,45 +360,75 @@
           const episodes = data.episodes?.[0]?.server_data || [];
           document.getElementById("home").style.display = "none";
           document.getElementById("detail").style.display = "block";
+
+          const categories = (movie.category||[]).map(c=>c.name).join(", ");
+          const countries = (movie.country||[]).map(c=>c.name).join(", ");
+
           document.getElementById("detail").innerHTML = `
             <div class="movie-detail">
-              <img src="${getImage(movie.poster_url)}" alt="${escapeHtml(movie.name)}" onerror="this.src='https://i.imgur.com/8Q1ZtUO.png'">
+              <img src="${getImage(movie.poster_url)}" alt="${escapeHtml(movie.name)}">
               <h2>${escapeHtml(movie.name)}</h2>
               <p><b>Tên gốc:</b> ${escapeHtml(movie.origin_name || "")}</p>
               <p><b>Năm:</b> ${escapeHtml(movie.year || "")}</p>
-              <p><b>Thể loại:</b> ${escapeHtml((movie.category||[]).map(c=>c.name).join(', '))}</p>
-              <p><b>Quốc gia:</b> ${escapeHtml((movie.country||[]).map(c=>c.name).join(', '))}</p>
+              <p><b>Thể loại:</b> ${escapeHtml(categories)}</p>
+              <p><b>Quốc gia:</b> ${escapeHtml(countries)}</p>
               <p>${escapeHtml(movie.content || "")}</p>
               <div><b>Danh sách tập:</b></div>
-              <div>
-                ${episodes.length
-                  ? episodes.map(ep => `<button class="episode-btn" onclick="play('${ep.link_embed}')">${escapeHtml(ep.name)}</button>`).join("")
-                  : "<span>Chưa có tập.</span>"}
-              </div>
+              <div>${episodes.length ? episodes.map(ep => `<button class="episode-btn" onclick="play('${ep.link_embed}')">${escapeHtml(ep.name)}</button>`).join("") : "<span>Chưa có tập.</span>"}</div>
               <button class="episode-btn" style="background:#444;" onclick="goHome()">⬅ Quay lại</button>
               <div id="player"></div>
+              <div id="related"></div>
+              <div id="commentArea" class="comment-section"></div>
             </div>`;
-        }).catch(()=>{ alert('Không tải được chi tiết phim.'); });
+
+          loadRelated(movie.name);
+          loadComments(slug);
+        });
     }
 
     function play(link) {
       document.getElementById("player").innerHTML = `<iframe src="${link}" allowfullscreen></iframe>`;
     }
 
-    // nhỏ but safe: escape html when interpolating text
-    function escapeHtml(str) {
-      if (!str) return "";
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    function loadRelated(name) {
+      fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(name)}&page=1`)
+        .then(res => res.json())
+        .then(data => {
+          const items = data.items || [];
+          document.getElementById("related").innerHTML = renderMovieRow("🔔 Phim tương tự", items.slice(0, 10));
+        });
     }
 
-    // start
+    function loadComments(slug) {
+      const container = document.getElementById("commentArea");
+      const comments = JSON.parse(localStorage.getItem("comments_"+slug) || "[]");
+
+      container.innerHTML = `
+        <h3>💬 Bình luận</h3>
+        <input id="commentName" placeholder="Tên của bạn">
+        <textarea id="commentText" rows="3" placeholder="Nội dung bình luận..."></textarea>
+        <button onclick="addComment('${slug}')">Gửi</button>
+        <div id="commentList">${comments.map(c=>`<div class='comment'><b>${escapeHtml(c.name)}</b>: ${escapeHtml(c.text)}</div>`).join("")}</div>
+      `;
+    }
+
+    function addComment(slug) {
+      const name = document.getElementById("commentName").value.trim();
+      const text = document.getElementById("commentText").value.trim();
+      if(!name || !text) return alert("Vui lòng nhập tên và bình luận!");
+      const key = "comments_"+slug;
+      const comments = JSON.parse(localStorage.getItem(key) || "[]");
+      comments.push({ name, text, date: new Date().toLocaleString() });
+      localStorage.setItem(key, JSON.stringify(comments));
+      loadComments(slug);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    }
+
     loadHome();
   </script>
 </body>
 </html>
-
